@@ -4,6 +4,14 @@
 
 Никаких стримингов и аккаунтов: музыка играет с устройства, а главное на экране — обложка, трек и текст.
 
+<p align="center">
+  <img src="screenshots/player.png" width="30%" alt="Плеер" />
+  &nbsp;
+  <img src="screenshots/lyrics.png" width="30%" alt="Текст песни" />
+  &nbsp;
+  <img src="screenshots/equalizer.png" width="30%" alt="Эквалайзер" />
+</p>
+
 ## Возможности
 
 **Плеер**
