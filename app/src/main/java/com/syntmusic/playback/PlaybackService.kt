@@ -2,6 +2,7 @@ package com.syntmusic.playback
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.media.audiofx.AudioEffect
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.annotation.OptIn
@@ -26,6 +27,7 @@ import com.syntmusic.MusicApp
 class PlaybackService : MediaSessionService() {
 
     private var session: MediaSession? = null
+    private var announcedSessionId = 0
 
     @OptIn(UnstableApi::class)
     override fun onCreate() {
@@ -47,8 +49,12 @@ class PlaybackService : MediaSessionService() {
 
         val equalizer = (application as MusicApp).container.equalizer
         equalizer.attach(player.audioSessionId)
+        announceAudioSession(player.audioSessionId)
         player.addListener(object : Player.Listener {
-            override fun onAudioSessionIdChanged(audioSessionId: Int) = equalizer.attach(audioSessionId)
+            override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                equalizer.attach(audioSessionId)
+                announceAudioSession(audioSessionId)
+            }
         })
 
         val openApp = PendingIntent.getActivity(
@@ -81,7 +87,28 @@ class PlaybackService : MediaSessionService() {
         if (player == null || !player.playWhenReady || player.mediaItemCount == 0) stopSelf()
     }
 
+    /**
+     * Tells the system (and OEM sound effects such as Dolby / Mi Sound) that this session plays
+     * music, so they process it the same way they do for other music apps.
+     */
+    private fun announceAudioSession(sessionId: Int) {
+        if (sessionId == announcedSessionId) return
+        if (announcedSessionId > 0) sendAudioSessionBroadcast(AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION, announcedSessionId)
+        if (sessionId > 0) sendAudioSessionBroadcast(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION, sessionId)
+        announcedSessionId = sessionId
+    }
+
+    private fun sendAudioSessionBroadcast(action: String, sessionId: Int) {
+        sendBroadcast(
+            Intent(action)
+                .putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId)
+                .putExtra(AudioEffect.EXTRA_PACKAGE_NAME, packageName)
+                .putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC),
+        )
+    }
+
     override fun onDestroy() {
+        announceAudioSession(0)
         (application as MusicApp).container.equalizer.release()
         session?.run {
             player.release()

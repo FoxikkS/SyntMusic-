@@ -112,7 +112,7 @@ fun EqualizerSheet(
                 maxLevel = state.maxLevel,
                 dimmed = !state.enabled,
                 onBandChange = onBandChange,
-                modifier = Modifier.padding(horizontal = 12.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
             )
 
             if (state.bassSupported) {
