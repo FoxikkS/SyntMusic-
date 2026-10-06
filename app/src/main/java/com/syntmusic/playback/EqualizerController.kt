@@ -156,10 +156,11 @@ class EqualizerController(context: Context) {
             }
             val loudestBoost = gains.max().coerceAtLeast(0f)
             dp.setInputGainAllChannelsTo(-loudestBoost * HEADROOM_SHARE)
+            // Only limit when something is boosted; otherwise it would just flatten the track's own peaks.
             dp.setLimiterAllChannelsTo(
                 DynamicsProcessing.Limiter(
                     /* inUse = */ true,
-                    /* enabled = */ true,
+                    /* enabled = */ loudestBoost > 0f,
                     /* linkGroup = */ 0,
                     /* attackTime = */ 1f,
                     /* releaseTime = */ 80f,
