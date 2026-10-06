@@ -57,6 +57,7 @@ fun EqualizerSheet(
     onBandChange: (Int, Int) -> Unit,
     onPreset: (Int) -> Unit,
     onBassChange: (Int) -> Unit,
+    onLoudnessChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -74,13 +75,7 @@ fun EqualizerSheet(
                     checked = state.enabled,
                     onCheckedChange = onEnabledChange,
                     enabled = state.available,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.Background,
-                        checkedTrackColor = Palette.Primary,
-                        uncheckedThumbColor = Palette.Secondary,
-                        uncheckedTrackColor = Palette.SurfaceHigh,
-                        uncheckedBorderColor = Palette.Inactive,
-                    ),
+                    colors = switchColors(),
                 )
             }
 
@@ -133,9 +128,38 @@ fun EqualizerSheet(
                     modifier = Modifier.padding(horizontal = 20.dp),
                 )
             }
+
+            Spacer(Modifier.height(12.dp))
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text("Loudness compensation", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "Fuller bass and treble at low volume",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Palette.Secondary,
+                    )
+                }
+                Switch(
+                    checked = state.loudness,
+                    onCheckedChange = onLoudnessChange,
+                    colors = switchColors(),
+                )
+            }
         }
     }
 }
+
+@Composable
+private fun switchColors() = SwitchDefaults.colors(
+    checkedThumbColor = Palette.Background,
+    checkedTrackColor = Palette.Primary,
+    uncheckedThumbColor = Palette.Secondary,
+    uncheckedTrackColor = Palette.SurfaceHigh,
+    uncheckedBorderColor = Palette.Inactive,
+)
 
 @Composable
 private fun EqualizerCurve(

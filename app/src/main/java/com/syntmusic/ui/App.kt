@@ -166,6 +166,7 @@ fun MusicAppRoot(
             onBandChange = playerViewModel::setBandLevel,
             onPreset = playerViewModel::useEqualizerPreset,
             onBassChange = playerViewModel::setBassStrength,
+            onLoudnessChange = playerViewModel::setLoudness,
             onDismiss = { equalizerOpen = false },
         )
     }

@@ -1,6 +1,11 @@
 package com.syntmusic.playback
 
 import android.content.Context
+import android.database.ContentObserver
+import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
 import android.media.audiofx.DynamicsProcessing
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +30,8 @@ data class EqualizerState(
     val bassSupported: Boolean = true,
     /** 0..1000 */
     val bassStrength: Int = 0,
+    /** Adds low end and a little treble as the volume goes down, where the ear hears them less. */
+    val loudness: Boolean = false,
 ) {
     companion object {
         const val CUSTOM = -1
@@ -42,6 +49,9 @@ private val BAND_EDGES = BAND_CENTERS.mapIndexed { i, hz ->
 
 /** Extra low-end gain per band at full bass boost, in dB. */
 private val BASS_BOOST_DB = listOf(8f, 7f, 4f, 1f, 0f, 0f, 0f, 0f, 0f, 0f)
+
+/** Loudness compensation at very low volume, in dB; scales down to zero at full volume. */
+private val LOUDNESS_DB = listOf(6f, 5f, 3f, 1f, 0f, 0f, 0f, 0.5f, 1.5f, 2.5f)
 
 /** Share of the loudest boost taken off the input; the limiter handles what's left. */
 private const val HEADROOM_SHARE = 0.6f
@@ -98,6 +108,18 @@ class EqualizerController(context: Context) {
 
     private var dynamics: DynamicsProcessing? = null
 
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val volumeObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            if (_state.value.loudness) apply()
+        }
+    }
+
+    init {
+        // Volume changes are written to system settings; that's the only public signal for them.
+        context.contentResolver.registerContentObserver(Settings.System.CONTENT_URI, true, volumeObserver)
+    }
+
     fun attach(audioSessionId: Int) {
         release()
         if (audioSessionId <= 0) return
@@ -135,6 +157,12 @@ class EqualizerController(context: Context) {
         apply()
     }
 
+    fun setLoudness(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_LOUDNESS, enabled).apply()
+        _state.update { it.copy(loudness = enabled) }
+        apply()
+    }
+
     fun release() {
         runCatching { dynamics?.release() }
         dynamics = null
@@ -145,12 +173,15 @@ class EqualizerController(context: Context) {
         val dp = dynamics ?: return
         val s = _state.value
         runCatching {
-            if (!s.enabled) {
+            if (!s.enabled && !s.loudness) {
                 dp.enabled = false
                 return
             }
-            val bass = s.bassStrength / 1000f
-            val gains = s.bands.mapIndexed { i, band -> band.level / 100f + BASS_BOOST_DB[i] * bass }
+            val bass = if (s.enabled) s.bassStrength / 1000f else 0f
+            val compensation = if (s.loudness) loudnessAmount() else 0f
+            val gains = s.bands.mapIndexed { i, band ->
+                (if (s.enabled) band.level / 100f else 0f) + BASS_BOOST_DB[i] * bass + LOUDNESS_DB[i] * compensation
+            }
             gains.forEachIndexed { i, gain ->
                 dp.setPreEqBandAllChannelsTo(i, DynamicsProcessing.EqBand(true, BAND_EDGES[i], gain))
             }
@@ -171,6 +202,13 @@ class EqualizerController(context: Context) {
             )
             dp.enabled = true
         }
+    }
+
+    /** 0 at full volume, 1 at 20% volume and below. */
+    private fun loudnessAmount(): Float {
+        val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+        val volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat() / max
+        return ((1f - volume) / 0.8f).coerceIn(0f, 1f)
     }
 
     private fun config(): DynamicsProcessing.Config =
@@ -202,6 +240,7 @@ class EqualizerController(context: Context) {
             presets = presets.map { it.name },
             preset = preset,
             bassStrength = prefs.getInt(KEY_BASS, 0),
+            loudness = prefs.getBoolean(KEY_LOUDNESS, false),
         )
     }
 
@@ -217,5 +256,6 @@ class EqualizerController(context: Context) {
         const val KEY_PRESET = "preset"
         const val KEY_LEVELS = "levels"
         const val KEY_BASS = "bass"
+        const val KEY_LOUDNESS = "loudness"
     }
 }

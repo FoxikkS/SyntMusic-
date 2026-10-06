@@ -86,6 +86,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     fun setEqualizerEnabled(enabled: Boolean) = equalizerController.setEnabled(enabled)
     fun useEqualizerPreset(preset: Int) = equalizerController.usePreset(preset)
     fun setBassStrength(strength: Int) = equalizerController.setBassStrength(strength)
+    fun setLoudness(enabled: Boolean) = equalizerController.setLoudness(enabled)
 
     fun setBandLevel(band: Int, level: Int) {
         if (!equalizer.value.enabled) equalizerController.setEnabled(true)
