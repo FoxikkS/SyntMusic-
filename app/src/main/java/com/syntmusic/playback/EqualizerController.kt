@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlin.math.log10
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -60,30 +59,12 @@ private class Preset(val name: String, val levels: List<Int>)
 
 private fun preset(name: String, vararg db: Float) = Preset(name, db.map { (it * 100).roundToInt() })
 
-/** Interpolates a target curve (Hz to dB) onto the bands, in log frequency. */
-private fun curve(name: String, vararg points: Pair<Int, Float>): Preset {
-    fun gainAt(hz: Int): Float {
-        if (hz <= points.first().first) return points.first().second
-        if (hz >= points.last().first) return points.last().second
-        val i = points.indexOfFirst { it.first >= hz }
-        val (f0, g0) = points[i - 1]
-        val (f1, g1) = points[i]
-        val t = (log10(hz.toFloat()) - log10(f0.toFloat())) / (log10(f1.toFloat()) - log10(f0.toFloat()))
-        return g0 + (g1 - g0) * t
-    }
-    return Preset(name, BAND_CENTERS.map { (gainAt(it) * 100).roundToInt() })
-}
-
 private val presets = listOf(
+    // Default, tuned for Honor Choice Headphones Pro (no public measurements; set by the usual
+    // consumer ANC over-ear signature): weighty sub-bass, less mid-bass boom, clearer vocals,
+    // a bit of air on top. Bass weight is built in, so Bass boost can stay at zero.
+    preset("Honor Choice Pro", 5f, 4.5f, 2f, -1.5f, -1f, 0f, 1f, 2.5f, 2f, 3f),
     preset("Flat", 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
-    // Approximate: no public measurements exist for these. Assumes the usual consumer ANC
-    // over-ear signature (mid-bass bloom, recessed presence region) and nudges it towards
-    // a Harman-like balance. Fine-tune by ear; any edit becomes "Custom".
-    curve(
-        "Honor Choice Pro",
-        30 to 1.5f, 60 to 1f, 120 to -1.5f, 230 to -2f, 500 to -0.5f, 910 to 0f,
-        2_000 to 1f, 3_600 to 2.5f, 6_000 to 1f, 10_000 to 0.5f, 14_000 to 2f,
-    ),
     preset("Bass", 6f, 5f, 3f, 1f, 0f, 0f, 0f, 0f, 0f, 0f),
     preset("Hip-Hop", 5f, 5f, 3f, 0f, -1f, 0f, 1f, 1.5f, 1f, 2f),
     preset("Electronic", 5f, 4f, 1f, 0f, -1f, 1f, 0f, 2f, 4f, 4f),
@@ -102,7 +83,7 @@ private val presets = listOf(
  */
 class EqualizerController(context: Context) {
 
-    private val prefs = context.getSharedPreferences("equalizer2", Context.MODE_PRIVATE)
+    private val prefs = context.getSharedPreferences("equalizer3", Context.MODE_PRIVATE)
     private val _state = MutableStateFlow(savedState())
     val state: StateFlow<EqualizerState> = _state.asStateFlow()
 
@@ -240,7 +221,7 @@ class EqualizerController(context: Context) {
             presets = presets.map { it.name },
             preset = preset,
             bassStrength = prefs.getInt(KEY_BASS, 0),
-            loudness = prefs.getBoolean(KEY_LOUDNESS, false),
+            loudness = prefs.getBoolean(KEY_LOUDNESS, true),
         )
     }
 
