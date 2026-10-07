@@ -33,14 +33,14 @@ fun rememberArtworkColor(uri: Uri?): State<Color> {
     val context = LocalContext.current
     val color = remember { Animatable(uri?.let { colorCache.get(it) } ?: NeutralTint) }
     LaunchedEffect(uri) {
-        val target = uri?.let { colorCache.get(it) ?: extractColor(context, it)?.also { c -> colorCache.put(it, c) } }
+        val target = uri?.let { colorCache.get(it) ?: extractArtworkColor(context, it)?.also { c -> colorCache.put(it, c) } }
             ?: NeutralTint
         if (color.value != target) color.animateTo(target, tween(700))
     }
     return color.asState()
 }
 
-private suspend fun extractColor(context: Context, uri: Uri): Color? {
+suspend fun extractArtworkColor(context: Context, uri: Uri): Color? {
     val request = ImageRequest.Builder(context)
         .data(ArtworkRequest(uri))
         .size(128)
