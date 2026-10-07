@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/widget_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_background"
+        android:tint="#FF171717" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/widget_art"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/widget_art_placeholder" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_title"
+                style="@style/WidgetTitle"
+                android:text="@string/app_name" />
+
+            <TextView
+                android:id="@+id/widget_artist"
+                style="@style/WidgetSubtitle"
+                android:text="@string/widget_idle" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/widget_prev"
+            style="@style/WidgetButton"
+            android:contentDescription="@string/widget_previous"
+            android:src="@drawable/ic_skip_previous" />
+
+        <ImageView
+            android:id="@+id/widget_play"
+            style="@style/WidgetButton"
+            android:contentDescription="@string/widget_play"
+            android:src="@drawable/ic_play" />
+
+        <ImageView
+            android:id="@+id/widget_next"
+            style="@style/WidgetButton"
+            android:contentDescription="@string/widget_next"
+            android:src="@drawable/ic_skip_next" />
+    </LinearLayout>
+</FrameLayout>

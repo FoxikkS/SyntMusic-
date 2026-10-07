@@ -62,7 +62,6 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
-    implementation("androidx.glance:glance-appwidget:1.1.1")
     // Applies the baseline profiles shipped with Compose on sideloaded installs (smoother first runs).
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")

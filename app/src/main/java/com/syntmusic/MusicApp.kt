@@ -11,8 +11,7 @@ import com.syntmusic.playback.EqualizerController
 import com.syntmusic.playback.PlayerController
 import com.syntmusic.ui.ArtworkFetcher
 import com.syntmusic.ui.ArtworkKeyer
-import androidx.glance.appwidget.updateAll
-import com.syntmusic.widget.SyntWidget
+import com.syntmusic.widget.WidgetRenderer
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -30,7 +29,7 @@ class MusicApp : Application(), ImageLoaderFactory {
             container.player.state
                 .map { it.currentTrack?.id to it.isPlaying }
                 .distinctUntilChanged()
-                .collect { SyntWidget().updateAll(this@MusicApp) }
+                .collect { WidgetRenderer.updateAll(this@MusicApp) }
         }
     }
 
