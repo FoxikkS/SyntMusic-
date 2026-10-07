@@ -30,6 +30,8 @@ abstract class SyntWidgetProvider(private val kind: WidgetKind) : AppWidgetProvi
             ACTION_PLAY_PAUSE -> player.togglePlayPause()
             ACTION_NEXT -> player.next()
             ACTION_PREVIOUS -> player.previous()
+            ACTION_SHUFFLE -> player.toggleShuffle()
+            ACTION_REPEAT -> player.cycleRepeatMode()
             else -> super.onReceive(context, intent)
         }
     }

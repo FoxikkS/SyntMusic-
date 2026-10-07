@@ -27,7 +27,7 @@ class MusicApp : Application(), ImageLoaderFactory {
         container = AppContainer(this)
         MainScope().launch {
             container.player.state
-                .map { it.currentTrack?.id to it.isPlaying }
+                .map { listOf(it.currentTrack?.id, it.isPlaying, it.shuffleEnabled, it.repeatMode) }
                 .distinctUntilChanged()
                 .collect { WidgetRenderer.updateAll(this@MusicApp) }
         }

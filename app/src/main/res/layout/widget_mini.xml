@@ -19,16 +19,17 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="8dp"
-        android:paddingEnd="4dp">
+        android:paddingEnd="2dp">
 
         <ImageView
             android:id="@+id/widget_art"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:importantForAccessibility="no"
             android:scaleType="fitCenter"
             android:src="@drawable/widget_art_placeholder" />
 
+        <!-- Takes whatever width is left: hides itself on a narrow widget, shows when stretched. -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -50,12 +51,33 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/widget_prev"
+            style="@style/WidgetButton"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/widget_previous"
+            android:src="@drawable/ic_skip_previous" />
+
+        <ImageView
             android:id="@+id/widget_play"
             style="@style/WidgetButton"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:padding="8dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/widget_play"
             android:src="@drawable/ic_play" />
+
+        <ImageView
+            android:id="@+id/widget_next"
+            style="@style/WidgetButton"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/widget_next"
+            android:src="@drawable/ic_skip_next" />
     </LinearLayout>
 </FrameLayout>

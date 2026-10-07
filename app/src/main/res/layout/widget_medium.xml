@@ -38,29 +38,53 @@
             <TextView
                 android:id="@+id/widget_title"
                 style="@style/WidgetTitle"
-                android:text="@string/app_name" />
+                android:text="@string/app_name"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/widget_artist"
                 style="@style/WidgetSubtitle"
-                android:text="@string/widget_idle" />
+                android:text="@string/widget_idle"
+                android:textSize="13sp" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/widget_shuffle"
+            style="@style/WidgetButton"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="9dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/widget_shuffle"
+            android:src="@drawable/ic_shuffle" />
 
         <ImageView
             android:id="@+id/widget_prev"
             style="@style/WidgetButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/widget_previous"
             android:src="@drawable/ic_skip_previous" />
 
         <ImageView
             android:id="@+id/widget_play"
             style="@style/WidgetButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/widget_play"
             android:src="@drawable/ic_play" />
 
         <ImageView
             android:id="@+id/widget_next"
             style="@style/WidgetButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/widget_next"
             android:src="@drawable/ic_skip_next" />
     </LinearLayout>

@@ -20,6 +20,7 @@ import android.widget.RemoteViews
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
+import androidx.media3.common.Player
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.syntmusic.MainActivity
@@ -36,14 +37,15 @@ import kotlinx.coroutines.withContext
 enum class WidgetKind(
     val layout: Int,
     val artworkPx: Int,
-    val hasSkipButtons: Boolean,
+    val hasShuffle: Boolean,
+    val hasRepeat: Boolean,
     /** Play button drawn as a filled circle (inverted colors). */
     val roundPlayButton: Boolean,
 ) {
-    MINI(R.layout.widget_mini, 120, hasSkipButtons = false, roundPlayButton = false),
-    SMALL(R.layout.widget_small, 320, hasSkipButtons = false, roundPlayButton = true),
-    MEDIUM(R.layout.widget_medium, 160, hasSkipButtons = true, roundPlayButton = false),
-    LARGE(R.layout.widget_large, 320, hasSkipButtons = true, roundPlayButton = true);
+    MINI(R.layout.widget_mini, 120, hasShuffle = false, hasRepeat = false, roundPlayButton = false),
+    SMALL(R.layout.widget_small, 320, hasShuffle = true, hasRepeat = false, roundPlayButton = true),
+    MEDIUM(R.layout.widget_medium, 160, hasShuffle = true, hasRepeat = false, roundPlayButton = false),
+    LARGE(R.layout.widget_large, 320, hasShuffle = true, hasRepeat = true, roundPlayButton = true);
 
     val providerClass: Class<out AppWidgetProvider>
         get() = when (this) {
@@ -61,6 +63,8 @@ enum class WidgetKind(
 const val ACTION_PLAY_PAUSE = "com.syntmusic.widget.PLAY_PAUSE"
 const val ACTION_NEXT = "com.syntmusic.widget.NEXT"
 const val ACTION_PREVIOUS = "com.syntmusic.widget.PREVIOUS"
+const val ACTION_SHUFFLE = "com.syntmusic.widget.SHUFFLE"
+const val ACTION_REPEAT = "com.syntmusic.widget.REPEAT"
 
 private const val LIGHT_BACKGROUND = 0xFFF2F2F2.toInt()
 private const val DARK_CONTENT = 0xFF111111.toInt()
@@ -132,11 +136,24 @@ object WidgetRenderer {
             }
             setOnClickPendingIntent(R.id.widget_play, broadcast(context, kind, ACTION_PLAY_PAUSE))
 
-            if (kind.hasSkipButtons) {
-                setInt(R.id.widget_prev, "setColorFilter", primary)
-                setInt(R.id.widget_next, "setColorFilter", primary)
-                setOnClickPendingIntent(R.id.widget_prev, broadcast(context, kind, ACTION_PREVIOUS))
-                setOnClickPendingIntent(R.id.widget_next, broadcast(context, kind, ACTION_NEXT))
+            setInt(R.id.widget_prev, "setColorFilter", primary)
+            setInt(R.id.widget_next, "setColorFilter", primary)
+            setOnClickPendingIntent(R.id.widget_prev, broadcast(context, kind, ACTION_PREVIOUS))
+            setOnClickPendingIntent(R.id.widget_next, broadcast(context, kind, ACTION_NEXT))
+
+            // Toggles: full color when on, faded when off.
+            val off = ColorUtils.setAlphaComponent(primary, 0x66)
+            if (kind.hasShuffle) {
+                setInt(R.id.widget_shuffle, "setColorFilter", if (state.shuffleEnabled) primary else off)
+                setOnClickPendingIntent(R.id.widget_shuffle, broadcast(context, kind, ACTION_SHUFFLE))
+            }
+            if (kind.hasRepeat) {
+                setImageViewResource(
+                    R.id.widget_repeat,
+                    if (state.repeatMode == Player.REPEAT_MODE_ONE) R.drawable.ic_repeat_one else R.drawable.ic_repeat,
+                )
+                setInt(R.id.widget_repeat, "setColorFilter", if (state.repeatMode != Player.REPEAT_MODE_OFF) primary else off)
+                setOnClickPendingIntent(R.id.widget_repeat, broadcast(context, kind, ACTION_REPEAT))
             }
 
             setOnClickPendingIntent(R.id.widget_root, openApp(context))

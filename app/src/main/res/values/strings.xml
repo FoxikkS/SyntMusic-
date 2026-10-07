@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SyntMusic</string>
-    <string name="widget_mini_description">Compact, with play button</string>
-    <string name="widget_small_description">Cover and play button</string>
+    <string name="widget_mini_description">Compact controls</string>
+    <string name="widget_small_description">Cover with controls</string>
     <string name="widget_medium_description">Now playing with controls</string>
     <string name="widget_large_description">Big cover with controls</string>
     <string name="widget_idle">Nothing playing</string>
@@ -9,4 +9,6 @@
     <string name="widget_pause">Pause</string>
     <string name="widget_previous">Previous</string>
     <string name="widget_next">Next</string>
+    <string name="widget_shuffle">Shuffle</string>
+    <string name="widget_repeat">Repeat</string>
 </resources>
